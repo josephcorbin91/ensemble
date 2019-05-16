@@ -51,10 +51,10 @@ class SubredditBoundaryCallback(
     @MainThread
     override fun onZeroItemsLoaded() {
         helper.runIfNotRunning(PagingRequestHelper.RequestType.INITIAL) {
-            webservice.getTop(
-                    subreddit = subredditName,
-                    limit = networkPageSize)
-                    .enqueue(createWebserviceCallback(it))
+            webservice.getCategories(
+                    format = "json",
+                    apiKey = "v83rkt73gjpdgfzyr83pdv4v")
+                    .enqueue(createWebserviceCallbackCategory(it))
         }
     }
 
@@ -102,6 +102,23 @@ class SubredditBoundaryCallback(
                     call: Call<RedditApi.ListingResponse>,
                     response: Response<RedditApi.ListingResponse>) {
                 insertItemsIntoDb(response, it)
+            }
+        }
+    }
+
+    private fun createWebserviceCallbackCategory(it: PagingRequestHelper.Request.Callback)
+            : Callback<RedditApi.CategoriesResponse> {
+        return object : Callback<RedditApi.CategoriesResponse> {
+            override fun onFailure(
+                    call: Call<RedditApi.CategoriesResponse>,
+                    t: Throwable) {
+                it.recordFailure(t)
+            }
+
+            override fun onResponse(
+                    call: Call<RedditApi.CategoriesResponse>,
+                    response: Response<RedditApi.CategoriesResponse>) {
+                print("AS")
             }
         }
     }
